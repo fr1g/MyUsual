@@ -1,6 +1,8 @@
-package Utils;
+package main.utils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.*;
 
 public class MyTableHelper<T> {
     private final String SEP = " | "; // NL + SEP + CONTENT + SEP 
@@ -10,7 +12,36 @@ public class MyTableHelper<T> {
 
     private int[] _sortedCellLength;
 
-    public void printLine(String[] items){  // CONTENTZE + NEWLINE
+    public List<String[]> toMappedStrings(List<?> from){
+        List<String[]> toReturn = new ArrayList<>();
+        for(Object o : from){
+            toReturn.add(this.toStrings(o));
+        }
+        return toReturn;
+    }
+
+    public String[] toStrings(Object obj){
+        // here to use reflect !!!
+        Class<?> c = obj.getClass();
+        Field[] fields = c.getDeclaredFields();
+        String[] result = new String[fields.length];
+        int it = 0;
+        for(Field f : fields){
+            f.setAccessible(true);
+            try {
+                result[it] = f.get(obj).toString();
+            }catch (IllegalAccessException e) {
+                System.err.println("IllegalAccessException, but can continue trying.");
+                e.printStackTrace();
+                System.err.println("In this case, inserted [eacc] instead.");
+                result[it] = "[eacc]";
+            }
+            it++;
+        }
+        return result;
+    }
+
+    public void printLine(String[] items){  // CONTENTiZE + NEWLINE
         int now = 0;
         String result = new String(NL + SEP);
         for(String x : items){
