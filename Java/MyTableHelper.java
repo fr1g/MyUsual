@@ -1,5 +1,3 @@
-package main.utils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.reflect.*;
@@ -14,9 +12,8 @@ public class MyTableHelper<T> {
 
     public List<String[]> toMappedStrings(List<?> from){
         List<String[]> toReturn = new ArrayList<>();
-        for(Object o : from){
+        for(Object o : from)
             toReturn.add(this.toStrings(o));
-        }
         return toReturn;
     }
 
