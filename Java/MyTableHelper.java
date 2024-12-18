@@ -1,5 +1,6 @@
 package su.kami.demo.utils;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.lang.reflect.*;
 
@@ -17,11 +18,6 @@ public class MyTableHelper<T> {
             toReturn.add(this.toStrings(o));
         return toReturn;
     }
-
-
-
-
-
 
     public String giveHtmlTableRow(String[] items, String cellClassName, String cellPresetStyle, boolean requiringTableHead){
         int now = 0;
@@ -86,6 +82,11 @@ public class MyTableHelper<T> {
         table.append("\n</tbody>");
         table.append("\n</table>");
 
+        if(this.debug) {
+            System.out.println("\nRequired New HTML Table, which looks like: ");
+            this.printTable(body, head);
+            System.out.print("\bTable as HTML sent. @" + (new Date()).getTime());
+        }
         return table.toString();
     }
 
