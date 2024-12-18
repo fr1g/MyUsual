@@ -1,8 +1,10 @@
+package su.kami.demo.utils;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class MyConn {
-    private Connection connection;
+    public Connection connection;
     private String user;
     private String pass;
     private String db;
@@ -20,9 +22,21 @@ public class MyConn {
         this.server = (server == null || server == "") ? "localhost:3306" : server;
     }
 
+    public Connection getConnection(){
+        return this.connection;
+    }
+
+    public Connection create(){
+        try{
+            this.connection = DriverManager.getConnection("jdbc:" + (this.isMaria ? "mariadb" : "mysql") + "://" + this.server + "/" + this.db
+                    + "?characterEncoding=utf8&user=" + this.user + "&password=" + this.pass + "");
+        }catch(Exception e){ e.printStackTrace(); }
+        return this.connection;
+    }
+
     public Connection connect() throws Exception{
-        this.connection = DriverManager.getConnection("jdbc:" + (this.isMaria ? "mariadb" : "mysql") + "://" + this.server + "/" + this.db 
-            + "?characterEncoding=utf8&user=" + this.user + "&password=" + this.pass + "");
+        this.connection = DriverManager.getConnection("jdbc:" + (this.isMaria ? "mariadb" : "mysql") + "://" + this.server + "/" + this.db
+                + "?characterEncoding=utf8&user=" + this.user + "&password=" + this.pass + "");
 
         return this.connection;
     }

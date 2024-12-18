@@ -1,9 +1,10 @@
+package su.kami.demo.utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.lang.reflect.*;
 
 public class MyTableHelper<T> {
-    private final String SEP = " | "; // NL + SEP + CONTENT + SEP 
+    private final String SEP = " | "; // NL + SEP + CONTENT + SEP
     private final String NL = "\n";
     private String row = "";
     private boolean debug = false;
@@ -16,6 +17,83 @@ public class MyTableHelper<T> {
             toReturn.add(this.toStrings(o));
         return toReturn;
     }
+
+
+
+
+
+
+    public String giveHtmlTableRow(String[] items, String cellClassName, String cellPresetStyle, boolean requiringTableHead){
+        int now = 0;
+        if(cellPresetStyle == null) cellPresetStyle = " ";
+        if(cellClassName == null) cellClassName = " ";
+
+        StringBuilder result = new StringBuilder(NL + "<tr>");
+        for(String x : items){
+            result.append(requiringTableHead ? "<th " : "<td ").append(cellPresetStyle).append(" ").append(cellClassName).append(" >\n");
+            result.append((x == null) ?
+                            this.combine(now, "no_content", true) :
+                            this.combine(now, x, true));
+            result.append(NL);
+            result.append(requiringTableHead ? "</th>" : "</td>");
+
+            now++; // todo: useless code using elder mark of cell position.
+        }
+        result.append("</tr>");
+        return result.toString();
+    }
+
+    public String giveHtmlTable(String[] head, List<T[]> body){
+        return this.giveHtmlTable(head, null, null, body, null, null, null);
+    }
+
+    public String giveHtmlTable(String[] head, List<T[]> body, String[] tablePresetAttributes){
+        return this.giveHtmlTable(head, null, null, body, null, null, tablePresetAttributes);
+    }
+
+    public String giveHtmlTable(String[] head, String headClass, List<T[]> body, String bodyCellClass, String[] tablePresetAttributes){
+        return this.giveHtmlTable(head, headClass, null, body, bodyCellClass, null, tablePresetAttributes);
+    }
+
+    public String giveHtmlTable(
+            String[] head,
+            String headClassName,
+            String headPresetStyle,
+            List<T[]> body,
+            String bodyCellClassName,
+            String bodyCellPresetStyle,
+            String[] tablePresetAttributes
+    ){
+        if(headClassName == null) headClassName = "";
+        if(headPresetStyle == null) headPresetStyle = "";
+        if(bodyCellClassName == null) bodyCellClassName = "";
+        if(bodyCellPresetStyle == null) bodyCellPresetStyle = "";
+        if(tablePresetAttributes == null) tablePresetAttributes = new String[]{""};
+
+        String tableHead = giveHtmlTableRow(head, headClassName, headPresetStyle, true);
+        StringBuilder tableBody = new StringBuilder();
+        StringBuilder table = new StringBuilder();
+        for(T[] rows : body)
+            tableBody.append(giveHtmlTableRow((String[]) rows, bodyCellClassName, bodyCellPresetStyle, false));
+
+        table.append("<table ");
+        for(String x : tablePresetAttributes)
+            table.append(x).append(" ");
+        table.append(">\n<thead>");
+        table.append(tableHead);
+        table.append("</thead>\n<tbody>\n");
+        table.append(tableBody);
+        table.append("\n</tbody>");
+        table.append("\n</table>");
+
+        return table.toString();
+    }
+
+
+
+
+
+
 
     public String[] toStrings(Object obj){
         // here to use reflect !!!
@@ -38,7 +116,7 @@ public class MyTableHelper<T> {
         return result;
     }
 
-    public void printLine(String[] items){  // CONTENTiZE + NEWLINE
+    public String giveLine(String[] items){
         int now = 0;
         String result = new String(NL + SEP);
         for(String x : items){
@@ -47,15 +125,17 @@ public class MyTableHelper<T> {
             result += SEP;
             now++;
         }
-        System.out.print(result);
+        return result;
+    }
+
+    public void printLine(String[] items){  // CONTENTiZE + NEWLINE
+        System.out.print(giveLine(items));
         System.out.print(NL + row);
     }
 
     public void printHead(String[] items){ // NEWLINE + HEAD + NEWLINE
         System.out.print(this.row);
         this.printLine(items);
-        // System.out.println(NL + this.row);
-
     }
 
     public String rowInit(){
@@ -72,9 +152,14 @@ public class MyTableHelper<T> {
     }
 
     public String combine(int index, String cont){
-        String x = cont; // why using x.length wont work but do work while using cont?
-        for(int tobe = 0; tobe < this._sortedCellLength[index] - cont.length(); tobe++) x += " ";
-        return x;
+        return this.combine(index, cont, false);
+    }
+
+    public String combine(int index, String cont, boolean htmlMode){
+        if(htmlMode) return (" " + cont.trim().strip() + " "); // too hard to guess whether the cell needs colspan.
+        StringBuilder x = new StringBuilder(cont); // why using x.length wont work but do work while using cont?
+        for(int tobe = 0; tobe < this._sortedCellLength[index] - cont.length(); tobe++) x.append(" ");
+        return x.toString();
     }
 
     public void printTable(List<T[]> contents, String[] head){
@@ -93,15 +178,15 @@ public class MyTableHelper<T> {
         }
         for(T[] arr : contents){
             if(x == contents.size()) break;
-            
+
             y = 0;
             for(T z : arr){
                 // if(y == arr.length) break;
-                
+
                 rawContent[x][y] = z.toString();
                 if(this.debug) System.out.println("Found cell value: " + z.toString() + " with length: " + z.toString().length());
-                if(this._sortedCellLength[y] <= rawContent[x][y].length()) 
-                    this._sortedCellLength[y] = rawContent[x][y].length();  
+                if(this._sortedCellLength[y] <= rawContent[x][y].length())
+                    this._sortedCellLength[y] = rawContent[x][y].length();
 
                 if(this.debug) System.out.println("Set length: " + this._sortedCellLength[y]);
 
