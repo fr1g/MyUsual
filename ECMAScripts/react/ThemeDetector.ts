@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 
-// usage: put these into the switch button
+// usage: put these anywhere upper than the switch button (or in switch button)
+// const theme = useThemeDetector();
 // const [darkMode, setDarkMode] = useState(true);
-// function switchTheme() { setTheme(!darkMode); }
+// and: 
+// theme.bindedUpdater = () => setDarkMode(!darkMode);
+// when using button:
+// ...onClick={theme.trigger}
 
 function documentElementSwitcher(mode: 'dark' | 'light') {
     document.documentElement.setAttribute("class", mode);
